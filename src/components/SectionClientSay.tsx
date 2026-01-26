@@ -24,17 +24,17 @@ const DEMO_DATA = [
   {
     id: 1,
     clientName: 'Tiana Abie',
-    content: 'Great quality products, affordable prices, fast and friendly delivery. I very recommend.',
+    content: 'Harika tur deneyimleri, uygun fiyatlar, hızlı ve güler yüzlü hizmet. Kesinlikle tavsiye ederim.',
   },
   {
     id: 2,
     clientName: 'Lennie Swiffan',
-    content: 'Great quality products, affordable prices, fast and friendly delivery. I very recommend.',
+    content: 'Hayatımın en güzel tatiliydi. Her şey en ince ayrıntısına kadar düşünülmüş. Teşekkürler!',
   },
   {
     id: 3,
     clientName: 'Berta Emili',
-    content: 'Great quality products, affordable prices, fast and friendly delivery. I very recommend.',
+    content: 'Profesyonel ekip ve muazzam rota planlaması. Bir sonraki turu sabırsızlıkla bekliyorum.',
   },
 ]
 
@@ -51,8 +51,8 @@ const SectionClientSay: FC<SectionClientSayProps> = ({
     slidesToScroll: 1,
     loop: true,
   },
-  heading = 'Good news from far away 🥇',
-  subHeading = "Let's see what people think of Chisfis",
+  heading = 'Misafirlerimizden Güzel Haberler 🥇',
+  subHeading = 'Venev Tour hakkında neler söylendiğine bir göz atın',
 }) => {
   const theme = useContext(ThemeContext)
 
@@ -61,7 +61,7 @@ const SectionClientSay: FC<SectionClientSayProps> = ({
       ...emblaOptions,
       direction: theme?.themeDir,
     },
-    [Autoplay({ playOnInit: true, delay: 2000 })]
+    [Autoplay({ playOnInit: true, delay: 5000 })] // Arttırılmış gecikme süresi okunabilirlik için
   )
   const { selectedIndex, scrollSnaps, onDotButtonClick } = useCarouselDotButton(emblaApi)
 
@@ -109,15 +109,15 @@ const SectionClientSay: FC<SectionClientSayProps> = ({
           <div className="embla" ref={emblaRef}>
             <ul className="embla__container">
               {DEMO_DATA.map((item) => (
-                <li key={item.id} className="flex embla__slide basis-full flex-col items-center text-center">
-                  <span className="block text-2xl">{item.content}</span>
-                  <span className="mt-8 block text-2xl font-semibold">{item.clientName}</span>
+                <li key={item.id} className="flex embla__slide basis-full flex-col items-center text-center px-4">
+                  <span className="block text-xl md:text-2xl italic font-medium">"{item.content}"</span>
+                  <span className="mt-8 block text-lg font-bold text-neutral-900 dark:text-neutral-100">{item.clientName}</span>
                   <div className="mt-3.5 flex items-center space-x-0.5 text-yellow-500">
-                    <StarIcon className="size-6" />
-                    <StarIcon className="size-6" />
-                    <StarIcon className="size-6" />
-                    <StarIcon className="size-6" />
-                    <StarIcon className="size-6" />
+                    <StarIcon className="size-5 md:size-6" />
+                    <StarIcon className="size-5 md:size-6" />
+                    <StarIcon className="size-5 md:size-6" />
+                    <StarIcon className="size-5 md:size-6" />
+                    <StarIcon className="size-5 md:size-6" />
                   </div>
                 </li>
               ))}
@@ -130,8 +130,8 @@ const SectionClientSay: FC<SectionClientSayProps> = ({
                   key={index}
                   onClick={() => onDotButtonClick(index)}
                   className={clsx(
-                    index === selectedIndex ? 'bg-neutral-700' : 'bg-neutral-300',
-                    'mx-1 size-2 rounded-full focus:outline-none'
+                    index === selectedIndex ? 'bg-primary-600 w-8' : 'bg-neutral-300 w-2',
+                    'mx-1 h-2 rounded-full focus:outline-none transition-all duration-300'
                   )}
                 ></button>
               ))}

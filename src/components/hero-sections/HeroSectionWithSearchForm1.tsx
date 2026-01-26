@@ -32,14 +32,14 @@ const HeroSectionWithSearchForm1 = ({
           <div className="absolute start-0 bottom-4 hidden w-screen max-w-4xl lg:block xl:max-w-6xl">{searchForm}</div>
         </div>
 
-        <div className="w-full aspect-w-16 aspect-h-9 lg:aspect-h-12 relative overflow-hidden rounded-2xl shadow-2xl">
+        <div className="w-full relative overflow-hidden">
           <Image
             className="object-cover"
             src={image.src}
             alt={imageAlt}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
+
             priority
+            fill
           />
         </div>
       </div>
