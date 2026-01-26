@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tour_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tour
+      POSTGRES_PASSWORD: tour
+      POSTGRES_DB: tour_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tour_network
+
+  adminer:
+    image: adminer:latest
+    container_name: tour_adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - tour_network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  tour_network:
+    driver: bridge
+

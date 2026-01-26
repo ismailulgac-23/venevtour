@@ -1,0 +1,262 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum Role {
+  ADMIN
+  AGENT
+  CUSTOMER
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum CommissionType {
+  PERCENTAGE
+  FIXED
+}
+
+// User Model (Base for Auth)
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(CUSTOMER)
+  status       AccountStatus @default(ACTIVE)
+  avatarUrl    String        @default("/uploads/users/default-avatar.jpg")
+  isVerified   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  // Relations
+  agentProfile    AgentProfile?
+  customerProfile CustomerProfile?
+
+  // Relations - Tours (if Agent/Admin)
+  tours Tour[]
+
+  // Relations - Reservations (if Customer)
+  reservations Reservation[]
+
+  // Relations - Favorites
+  favorites Favorite[]
+
+  // Relations - Reviews
+  reviews Review[]
+}
+
+// Customer Profile
+model CustomerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  firstName String
+  lastName  String
+  phone     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Agent Profile
+model AgentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  companyName  String
+  contactName  String
+  contactPhone String
+  contactEmail String
+
+  // Tax Info
+  taxOffice   String?
+  taxNumber   String?
+  companyType String?
+  address     String?
+  bio         String?
+
+  // Commission Info
+  commissionType   CommissionType @default(PERCENTAGE)
+  commissionAmount Decimal        @default(10.00)
+
+  // Tourism Info
+  tursabNumber String // Zorunlu
+  documentUrl  String? // Base64 or URL
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Category Model
+model Category {
+  id    String  @id @default(cuid())
+  name  String  @unique
+  slug  String  @unique
+  icon  String?
+  image String?
+
+  tours Tour[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Tour Model
+model Tour {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  location    String
+
+  // Coordinates for map
+  lat Float? @default(41.0082)
+  lng Float? @default(28.9784)
+
+  priceFrom    Decimal
+  durationDays Int
+  maxCapacity  Int?
+
+  // Languages spoken during tour
+  languages String[] @default(["Türkçe"])
+
+  // Content
+  includes String[]
+  excludes String[]
+
+  // Availability Dates
+  tourStartDate DateTime?
+  tourEndDate   DateTime?
+
+  isActive Boolean @default(true)
+
+  // Category Relation
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  agentId String
+  agent   User   @relation(fields: [agentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       TourImage[]
+  extras       TourExtra[]
+  roadmaps     TourRoadmap[]
+  reservations Reservation[]
+  favorites    Favorite[]
+  reviews      Review[]
+}
+
+model TourRoadmap {
+  id     String @id @default(cuid())
+  tourId String
+  tour   Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  dayNumber   Int
+  title       String
+  description String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TourImage {
+  id        String  @id @default(cuid())
+  tourId    String
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  url       String
+  isFeature Boolean @default(false)
+}
+
+model TourExtra {
+  id     String @id @default(cuid())
+  tourId String
+  tour   Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  name        String
+  price       Decimal
+  isPerPerson Boolean @default(true)
+}
+
+// Reservation
+model Reservation {
+  id String @id @default(cuid())
+
+  tourId String
+  tour   Tour   @relation(fields: [tourId], references: [id])
+
+  customerId String
+  customer   User   @relation(fields: [customerId], references: [id])
+
+  status ReservationStatus @default(PENDING)
+
+  totalPrice     Decimal
+  passengerCount Int
+
+  startDate DateTime?
+  endDate   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  passengers ReservationPassenger[]
+}
+
+model ReservationPassenger {
+  id            String      @id @default(cuid())
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  fullName  String
+  email     String?
+  phone     String?
+  birthDate DateTime?
+  idNumber  String?
+  gender    String?
+}
+
+model Favorite {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tourId String
+  tour   Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tourId])
+}
+
+model Review {
+  id     String @id @default(cuid())
+  tourId String
+  tour   Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating  Int    @default(5)
+  comment String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
