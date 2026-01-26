@@ -13,6 +13,7 @@ import HeadingWithSub from '@/shared/Heading'
 import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Anasayfa - Tur Rezervasyon',
@@ -115,22 +116,24 @@ async function Page({ searchParams }: PageProps) {
     <main className="relative overflow-hidden">
       <BgGlassmorphism />
       <div className="relative container mb-24 flex flex-col gap-y-24 lg:mb-28 lg:gap-y-32">
-        <HeroSectionWithSearchForm1
-          heading="Hayalindeki Turu Keşfet"
-          image={heroImage}
-          imageAlt="Tur Rezervasyon"
-          searchForm={<ToursSearchForm formStyle="default" />}
-          description={
-            <div className="space-y-4">
-              <p className="max-w-xl text-base text-neutral-500 sm:text-xl dark:text-neutral-400 font-medium leading-relaxed">
-                Eşsiz deneyimler ve unutulmaz anılar için en popüler rotaları keşfedin. Türkiye'nin her köşesine özel turlar sizi bekliyor.
-              </p>
-              <ButtonPrimary href={'/tours'} className="sm:text-base/normal px-8 py-4 shadow-xl">
-                Turları İncele
-              </ButtonPrimary>
-            </div>
-          }
-        />
+        <Suspense fallback={<div className="h-20" />}>
+          <HeroSectionWithSearchForm1
+            heading="Hayalindeki Turu Keşfet"
+            image={heroImage}
+            imageAlt="Tur Rezervasyon"
+            searchForm={<ToursSearchForm formStyle="default" />}
+            description={
+              <div className="space-y-4">
+                <p className="max-w-xl text-base text-neutral-500 sm:text-xl dark:text-neutral-400 font-medium leading-relaxed">
+                  Eşsiz deneyimler ve unutulmaz anılar için en popüler rotaları keşfedin. Türkiye'nin her köşesine özel turlar sizi bekliyor.
+                </p>
+                <ButtonPrimary href={'/tours'} className="sm:text-base/normal px-8 py-4 shadow-xl">
+                  Turları İncele
+                </ButtonPrimary>
+              </div>
+            }
+          />
+        </Suspense>
 
         <div>
           <HeadingWithSub subheading="En yeni ve en popüler turlarımızı inceleyin">

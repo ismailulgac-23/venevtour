@@ -19,6 +19,7 @@ import HeadingWithSub from '@/shared/Heading'
 import { ArrowRight02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Experiences Home',
@@ -34,22 +35,24 @@ async function Home() {
     <main className="relative overflow-hidden">
       <BgGlassmorphism />
       <div className="relative container mb-24 flex flex-col gap-y-24 lg:mb-28 lg:gap-y-32">
-        <HeroSectionWithSearchForm1
-          heading="Discover Adventures"
-          image={heroImage}
-          imageAlt="hero"
-          searchForm={<HeroSearchForm initTab="Experiences" />}
-          description={
-            <>
-              <p className="max-w-xl text-base text-neutral-500 sm:text-xl dark:text-neutral-400">
-                With us, your trip is filled with amazing experiences.
-              </p>
-              <ButtonPrimary href={'/experience-categories/all'} className="sm:text-base/normal">
-                Start your search
-              </ButtonPrimary>
-            </>
-          }
-        />
+        <Suspense fallback={<div className="h-20" />}>
+          <HeroSectionWithSearchForm1
+            heading="Discover Adventures"
+            image={heroImage}
+            imageAlt="hero"
+            searchForm={<HeroSearchForm initTab="Experiences" />}
+            description={
+              <>
+                <p className="max-w-xl text-base text-neutral-500 sm:text-xl dark:text-neutral-400">
+                  With us, your trip is filled with amazing experiences.
+                </p>
+                <ButtonPrimary href={'/experience-categories/all'} className="sm:text-base/normal">
+                  Start your search
+                </ButtonPrimary>
+              </>
+            }
+          />
+        </Suspense>
 
         <div>
           <HeadingWithSub subheading="Keep calm & travel on">Let&apos;s go on an adventure</HeadingWithSub>

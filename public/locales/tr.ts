@@ -167,4 +167,8 @@ export const tr = {
         'Already have an account?': 'Zaten hesabınız var mı?',
         'Sign in': 'Giriş yap',
     },
+    subscriptionPage: {
+        Subscription: 'Abonelik',
+        popular: 'POPÜLER',
+    },
 }
