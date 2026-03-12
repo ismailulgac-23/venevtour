@@ -85,9 +85,8 @@ const StayCard: FC<StayCardProps> = ({ size = 'default', className = '', data })
 
   return (
     <div
-      className={`group relative bg-white dark:bg-neutral-900 ${
-        size === 'default' ? 'border border-neutral-100 dark:border-neutral-800' : ''
-      } overflow-hidden rounded-2xl transition-shadow hover:shadow-xl ${className}`}
+      className={`group relative bg-white dark:bg-neutral-900 ${size === 'default' ? 'border border-neutral-100 dark:border-neutral-800' : ''
+        } overflow-hidden rounded-2xl transition-shadow hover:shadow-xl ${className}`}
     >
       {renderSliderGallery()}
       <Link href={listingHref}>{renderContent()}</Link>

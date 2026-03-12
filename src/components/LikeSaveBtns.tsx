@@ -10,11 +10,54 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import clsx from 'clsx'
 import { useState } from 'react'
 
-export const LikeButton = () => {
-  const [isLiked, setIsLiked] = useState(false)
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+
+export const LikeButton = ({ tourId, initialIsLiked }: { tourId?: string, initialIsLiked?: boolean }) => {
+  const [isLiked, setIsLiked] = useState(initialIsLiked || false)
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  const handleToggleLike = async () => {
+    if (!tourId) return
+    if (loading) return
+    setLoading(true)
+
+    try {
+      const authRes = await fetch('/api/auth/me')
+      if (!authRes.ok) {
+        toast.error('Favorilere eklemek için giriş yapmalısınız.')
+        router.push(`/login?redirect=${window.location.pathname}`)
+        return
+      }
+
+      if (isLiked) {
+        const res = await fetch(`/api/favorites/${tourId}`, { method: 'DELETE' })
+        if (res.ok) {
+          setIsLiked(false)
+          toast.success('Favorilerden kaldırıldı.')
+        }
+      } else {
+        const res = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tourId })
+        })
+        if (res.ok) {
+          setIsLiked(true)
+          toast.success('Favorilere eklendi.')
+        }
+      }
+    } catch (e) {
+      toast.error('Bağlantı hatası.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <ButtonCircle outline onClick={() => setIsLiked(!isLiked)}>
-      {isLiked ? <HeartIcon className={'size-5! text-red-400'} /> : <HeartIconOutline className="size-5!" />}
+    <ButtonCircle outline onClick={handleToggleLike} className={clsx(loading && 'opacity-50 pointer-events-none')}>
+      {isLiked ? <HeartIcon className={'size-5! text-red-500'} /> : <HeartIconOutline className="size-5!" />}
     </ButtonCircle>
   )
 }
@@ -40,10 +83,10 @@ export const ShareButton = () => {
   )
 }
 
-const LikeSaveBtns = ({ className }: { className?: string }) => {
+const LikeSaveBtns = ({ className, tourId, initialIsLiked }: { className?: string, tourId?: string, initialIsLiked?: boolean }) => {
   return (
     <div className={clsx('flex gap-2', className)}>
-      <LikeButton />
+      <LikeButton tourId={tourId} initialIsLiked={initialIsLiked} />
       <ShareButton />
     </div>
   )

@@ -16,7 +16,13 @@ export async function GET() {
         }
 
         const tours = await prisma.tour.findMany({
-            include: { agent: { include: { agentProfile: true } } },
+            include: { 
+                agent: { include: { agentProfile: true } },
+                images: true,
+                _count: {
+                    select: { reservations: true }
+                }
+            },
             orderBy: { createdAt: 'desc' }
         });
 

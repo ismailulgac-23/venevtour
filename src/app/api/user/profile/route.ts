@@ -21,10 +21,30 @@ export async function PATCH(request: Request) {
         const userId = payload.userId as string;
         const formData = await request.formData();
         const avatarFile = formData.get("avatar") as File | null;
+        const removeAvatar = formData.get("removeAvatar") === "true";
 
         let avatarUrl = undefined;
 
-        if (avatarFile && avatarFile.size > 0) {
+        // Mevcut kullanıcıyı çekip eski resmini silmeye hazırla
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { avatarUrl: true }
+        });
+
+        if (removeAvatar) {
+            avatarUrl = "/uploads/users/default-avatar.jpg";
+            
+            // Eski resmi sil (default değilse)
+            if (user?.avatarUrl && user.avatarUrl !== "/uploads/users/default-avatar.jpg" && user.avatarUrl.startsWith("/uploads/")) {
+                try {
+                    const oldPath = path.join(process.cwd(), "public", user.avatarUrl);
+                    const fs = require('fs/promises');
+                    await fs.unlink(oldPath);
+                } catch (e) {
+                    console.error("Old avatar delete error:", e);
+                }
+            }
+        } else if (avatarFile && avatarFile.size > 0) {
             const ext = path.extname(avatarFile.name).toLowerCase();
             const ALLOWED_EXTENSIONS = ['.webp', '.jpg', '.jpeg', '.png', '.heic'];
 
@@ -34,12 +54,6 @@ export async function PATCH(request: Request) {
                     message: `Geçersiz dosya formatı: ${ext}. Sadece webp, jpg, jpeg, png ve heic formatlarına izin verilir.`
                 }, { status: 400 });
             }
-
-            // Mevcut kullanıcıyı çekip eski resmini silmeye hazırla
-            const user = await prisma.user.findUnique({
-                where: { id: userId },
-                select: { avatarUrl: true }
-            });
 
             const bytes = await avatarFile.arrayBuffer();
             const buffer = Buffer.from(bytes);
@@ -75,10 +89,16 @@ export async function PATCH(request: Request) {
                 }
             });
 
-            if (user.role === "CUSTOMER") {
-                await tx.customerProfile.update({
+            if (user.role === "CUSTOMER" || user.role === "ADMIN") {
+                await tx.customerProfile.upsert({
                     where: { userId },
-                    data: {
+                    create: {
+                        userId,
+                        firstName: firstName || "",
+                        lastName: lastName || "",
+                        phone: phone || ""
+                    },
+                    update: {
                         ...(firstName && { firstName }),
                         ...(lastName && { lastName }),
                         ...(phone && { phone }),
@@ -89,7 +109,8 @@ export async function PATCH(request: Request) {
                     where: { userId },
                     data: {
                         ...(companyName && { companyName }),
-                        ...(phone && { contactPhone: phone }), // Agent için phone contactPhone olarak saklanıyor olabilir
+                        ...(firstName && { contactName: firstName + (lastName ? " " + lastName : "") }),
+                        ...(phone && { contactPhone: phone }),
                     }
                 });
             }

@@ -89,7 +89,7 @@ const styles = {
     small: 'text-base',
   },
   panel: {
-    base: 'absolute start-0 top-full z-40 mt-3 hidden-scrollbar max-h-96  overflow-y-auto rounded-3xl bg-white py-3 shadow-xl transition duration-150 data-closed:translate-y-1 data-closed:opacity-0  dark:bg-neutral-800',
+    base: 'absolute start-0 top-full z-50 mt-3 hidden-scrollbar max-h-96  overflow-y-auto rounded-3xl bg-white py-3 shadow-xl transition duration-150 data-closed:translate-y-1 data-closed:opacity-0  dark:bg-neutral-800',
     default: 'w-lg sm:py-6',
     small: 'w-md sm:py-5',
   },
@@ -108,12 +108,10 @@ interface Props {
 import { useSearchParams } from 'next/navigation'
 
 export const LocationInputField: FC<Props> = ({
-  placeholder = T['HeroSearchForm']['Location'],
-  description = T['HeroSearchForm']['Where are you going?'],
+  placeholder = "Nereye gidiyorsunuz?",
+  description = "Bir şehir veya tur adı yazın",
   className = 'flex-1',
   inputName = 'location',
-  initSuggests = demoInitSuggests,
-  searchingSuggests = demoSearchingSuggests,
   fieldStyle = 'default',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -121,43 +119,69 @@ export const LocationInputField: FC<Props> = ({
   const searchParams = useSearchParams()
   const [showPopover, setShowPopover] = useState(false)
   const [selected, setSelected] = useState<Suggest | null>(null)
+  const [suggests, setSuggests] = useState<{ locations: any[], tours: any[] }>({ locations: [], tours: [] })
+  const [loading, setLoading] = useState(false)
+
+  // Fetch initial suggestions (recommended locations)
+  useEffect(() => {
+    const fetchInitial = async () => {
+      try {
+        const res = await fetch('/api/search/suggestions')
+        const json = await res.json()
+        if (json.success) {
+            setSuggests(prev => ({ ...prev, locations: json.data.locations }))
+        }
+      } catch (e) {
+        console.error('Initial suggestions fetch error:', e)
+      }
+    }
+    fetchInitial()
+  }, [])
 
   useEffect(() => {
-    const loc = searchParams.get('location')
-    if (loc && !selected) {
-      setSelected({ id: 'url', name: loc })
+    const query = searchParams.get('q') || searchParams.get('location')
+    if (query && !selected) {
+      setSelected({ id: 'url', name: query })
     }
   }, [searchParams])
 
-  // for memoization of the close function
   const closePopover = useCallback(() => {
     setShowPopover(false)
   }, [])
 
-  //  a custom hook that listens for clicks outside the container
   useInteractOutside(containerRef, closePopover)
 
-  const handleInputChange = useCallback(
-    _.debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-      setShowPopover(true)
-      // If the input is empty, Combobox will automatically setSelected
-      if (e.target.value) {
-        setSelected({
-          id: Date.now().toString(), // Generate a unique id for the selected item
-          name: e.target.value,
-        })
-      }
-    }, 300),
+  const fetchSearchSuggestions = useCallback(
+    _.debounce(async (value: string) => {
+        if (!value || value.length < 2) {
+            // Already handled by fetchInitial, or we can refresh here
+            return
+        }
+        setLoading(true)
+        try {
+            const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(value)}`)
+            const json = await res.json()
+            if (json.success) {
+                setSuggests(json.data)
+            }
+        } catch (e) {
+            console.error('Search suggestions fetch error:', e)
+        } finally {
+            setLoading(false)
+        }
+    }, 400),
     []
   )
-  useEffect(() => {
-    return () => {
-      handleInputChange.cancel() // Hủy debounce khi component unmount
-    }
-  }, [handleInputChange])
 
-  const isShowInitSuggests = !selected?.id
-  const suggestsToShow = isShowInitSuggests ? initSuggests : searchingSuggests
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setShowPopover(true)
+    setSelected({ id: '', name: val })
+    fetchSearchSuggestions(val)
+  }
+
+  const isShowInitSuggests = !selected?.name && suggests.locations.length > 0
+  const hasResults = suggests.locations.length > 0 || suggests.tours.length > 0
   return (
     <div
       className={`group relative z-10 flex ${className}`}
@@ -217,25 +241,76 @@ export const LocationInputField: FC<Props> = ({
         <Headless.Transition show={showPopover} unmount={false}>
           <div className={clsx(styles.panel.base, styles.panel[fieldStyle])}>
             {isShowInitSuggests && (
-              <p className="mt-2 mb-3 px-4 text-xs/6 font-normal text-neutral-600 sm:mt-0 sm:px-8 dark:text-neutral-400">
-                {T['HeroSearchForm']['Suggested locations']}
+              <p className="mt-2 mb-3 px-4 text-xs font-bold uppercase tracking-widest text-neutral-400 sm:mt-0 sm:px-8 dark:text-neutral-500">
+                Önerilen Bölgeler
               </p>
             )}
-            {isShowInitSuggests && <Divider className="opacity-50" />}
+            {!isShowInitSuggests && loading && (
+                <div className="p-8 text-center text-sm text-neutral-400">Aranıyor...</div>
+            )}
+            
             <Headless.ComboboxOptions static unmount={false}>
-              {suggestsToShow.map((item) => (
+              {isShowInitSuggests && suggests.locations.map((item) => (
                 <Headless.ComboboxOption
                   key={item.id}
                   value={item}
-                  className="flex items-center gap-3 p-4 data-focus:bg-neutral-100 sm:gap-4.5 sm:px-8 dark:data-focus:bg-neutral-700"
+                  className="flex items-center gap-3 p-4 data-focus:bg-neutral-100 sm:gap-4.5 sm:px-8 dark:data-focus:bg-neutral-700 cursor-pointer"
                 >
                   <HugeiconsIcon
-                    icon={item.icon || Location01Icon}
+                    icon={Location01Icon}
                     className="size-4 text-neutral-400 sm:size-6 dark:text-neutral-500"
                   />
                   <span className="block font-medium text-neutral-700 dark:text-neutral-200">{item.name}</span>
                 </Headless.ComboboxOption>
               ))}
+
+              {!isShowInitSuggests && !loading && (
+                <>
+                  {suggests.locations.length > 0 && (
+                    <p className="mt-2 mb-3 px-4 text-[10px] font-bold uppercase tracking-widest text-neutral-400 sm:mt-0 sm:px-8 dark:text-neutral-500">
+                        Lokasyonlar
+                    </p>
+                  )}
+                  {suggests.locations.map((item) => (
+                    <Headless.ComboboxOption
+                      key={item.id}
+                      value={item}
+                      className="flex items-center gap-3 p-4 data-focus:bg-neutral-100 sm:gap-4.5 sm:px-8 dark:data-focus:bg-neutral-700 cursor-pointer"
+                    >
+                      <HugeiconsIcon
+                        icon={Location01Icon}
+                        className="size-4 text-neutral-400 sm:size-6 dark:text-neutral-500"
+                      />
+                      <span className="block font-medium text-neutral-700 dark:text-neutral-200">{item.name}</span>
+                    </Headless.ComboboxOption>
+                  ))}
+
+                  {suggests.tours.length > 0 && (
+                    <p className="mt-4 mb-3 px-4 text-[10px] font-bold uppercase tracking-widest text-neutral-400 sm:mt-4 sm:px-8 dark:text-neutral-500">
+                        Turlar
+                    </p>
+                  )}
+                  {suggests.tours.map((item) => (
+                    <Headless.ComboboxOption
+                      key={item.id}
+                      value={item}
+                      className="flex items-center gap-3 p-4 data-focus:bg-neutral-100 sm:gap-4.5 sm:px-8 dark:data-focus:bg-neutral-700 cursor-pointer"
+                    >
+                      <HugeiconsIcon
+                        icon={HutIcon}
+                        className="size-4 text-neutral-400 sm:size-6 dark:text-neutral-500"
+                      />
+                      <span className="block font-medium text-neutral-700 dark:text-neutral-200">{item.name}</span>
+                    </Headless.ComboboxOption>
+                  ))}
+
+                  {!hasResults && selected?.name && (
+                    <div className="p-8 text-center text-sm text-neutral-400">
+                        "{selected.name}" için sonuç bulunamadı.
+                    </div>
+                  )}
+                </>
+              )}
             </Headless.ComboboxOptions>
           </div>
         </Headless.Transition>

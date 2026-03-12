@@ -56,6 +56,12 @@ const SavedListsPage = () => {
                 priceFrom: Number(fav.tour.priceFrom),
                 createdAt: fav.tour.createdAt,
                 updatedAt: fav.tour.updatedAt,
+                like: true
+              }}
+              onLikeChange={(liked) => {
+                if (!liked) {
+                  setFavorites((prev) => prev.filter((item) => item.tour.id !== fav.tour.id))
+                }
               }}
             />
           ))}

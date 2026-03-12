@@ -14,11 +14,18 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Chisfis',
-    default: 'Chisfis - Booking online React Next.js template',
+    template: '%s - Venevtour',
+    default: 'Venevtour - En İyi Tur ve Tatil Deneyimleri',
   },
-  description: 'Booking online & rental online Next.js Template',
-  keywords: ['Chisfis', 'Booking online', 'Rental online', 'React Next.js template'],
+  description: 'Venevtour ile dünyayı keşfedin. En iyi turlar, oteller ve seyahat rotaları.',
+  keywords: ['Venevtour', 'Tur', 'Tatil', 'Seyahat', 'Rezervasyon', 'Acente'],
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

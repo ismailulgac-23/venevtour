@@ -165,49 +165,75 @@ const CreateTourPage = () => {
         }
     }
 
-    const renderStepper = () => (
-        <nav className="mb-12">
-            <ul className="flex items-center justify-between w-full">
-                {STEPS.map((step, idx) => {
-                    const isActive = currentStep === step.id;
-                    const isCompleted = currentStep > step.id;
+    const renderStepper = () => {
+        const stepCount = STEPS.length;
+        const trackOffset = 100 / (2 * stepCount); // Center of the first/last step
+        const progressWidth = ((currentStep - 1) / (stepCount - 1)) * 100;
 
-                    return (
-                        <li key={step.id} className="relative flex-1 group">
-                            <div className={`flex items-center ${idx == STEPS.length - 1 ? "justify-end" : idx == 0 ? "justify-start" : "justify-center"}`}>
-                                <div className={clsx(
-                                    "z-10 flex items-center justify-center size-12 rounded-full border-2 font-bold transition-all duration-300 shadow-sm",
-                                    isActive || isCompleted
-                                        ? "bg-neutral-900 border-primary-6000 text-white"
-                                        : "bg-white border-neutral-200 text-neutral-400"
-                                )}>
-                                    {isCompleted ? (
-                                        <CheckIcon className="size-6 animate-in zoom-in duration-300" />
-                                    ) : (
-                                        <span className={clsx(isActive && "scale-110 transition-transform")}>{step.id}</span>
-                                    )}
-                                    {isActive && (
-                                        <div className="absolute inset-0 rounded-full animate-ping bg-primary-6000/20 -z-10" />
-                                    )}
+        return (
+            <nav className="mb-16 relative">
+                {/* Track Container (Constrained between first and last step centers) */}
+                <div
+                    className="absolute top-6 h-0.5 bg-neutral-100 dark:bg-neutral-800 -z-0 rounded-full"
+                    style={{ left: `${trackOffset}%`, right: `${trackOffset}%` }}
+                >
+                    {/* Active Progress Line */}
+                    <div
+                        className="absolute h-full bg-neutral-900 dark:bg-primary-500 transition-all duration-700 ease-in-out rounded-full"
+                        style={{ width: `${progressWidth}%` }}
+                    />
+                </div>
+
+                <ul className="relative flex items-center justify-between w-full z-10">
+                    {STEPS.map((step) => {
+                        const isActive = currentStep === step.id;
+                        const isCompleted = currentStep > step.id;
+
+                        return (
+                            <li key={step.id} className="flex-1">
+                                <div className="flex flex-col items-center">
+                                    {/* Circle */}
+                                    <div className={clsx(
+                                        "flex items-center justify-center size-12 rounded-full border-2 transition-all duration-500 shadow-sm relative",
+                                        isActive
+                                            ? "bg-white dark:bg-neutral-900 border-neutral-900 dark:border-primary-500 scale-110 z-20"
+                                            : isCompleted
+                                                ? "bg-neutral-900 border-neutral-900 text-white z-10"
+                                                : "bg-white dark:bg-neutral-900 border-neutral-200 text-neutral-400 z-0"
+                                    )}>
+                                        {isCompleted ? (
+                                            <CheckIcon className="size-6 text-white animate-in zoom-in duration-300" />
+                                        ) : (
+                                            <span className={clsx("text-sm font-bold", isActive ? "text-neutral-900 dark:text-primary-400" : "text-neutral-400")}>
+                                                {step.id}
+                                            </span>
+                                        )}
+
+                                        {isActive && (
+                                            <div className="absolute inset-0 rounded-full animate-ping bg-neutral-900/10 dark:bg-primary-500/10 -z-10" />
+                                        )}
+                                    </div>
+
+                                    {/* Labels */}
+                                    <div className="mt-4 flex flex-col items-center text-center px-2">
+                                        <span className={clsx(
+                                            "text-[11px] font-bold tracking-widest uppercase transition-colors duration-300",
+                                            isActive ? "text-neutral-900 dark:text-primary-400" : isCompleted ? "text-neutral-700 dark:text-neutral-300" : "text-neutral-400"
+                                        )}>
+                                            {step.title}
+                                        </span>
+                                        <p className="text-[10px] text-neutral-400 hidden lg:block font-medium mt-1 leading-tight tracking-tight opacity-70">
+                                            {step.description}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className={clsx(
-                                    "absolute right-0 top-7 -translate-y-1/2 h-1 -z-0 w-full rounded-full",
-                                    isCompleted ? "bg-neutral-900" : "bg-neutral-100"
-                                )} />
-                            </div>
-                            <div className={`mt-4 hidden md:flex flex-col ${idx == STEPS.length - 1 ? "items-end" : idx == 0 ? "items-start" : "items-center"}`}>
-                                <span className={clsx(
-                                    "text-sm font-bold tracking-tight uppercase",
-                                    isActive ? "text-primary-6000" : isCompleted ? "text-neutral-900" : "text-neutral-400"
-                                )}>{step.title}</span>
-                                <p className="text-[10px] text-neutral-400 leading-tight hidden xl:block uppercase font-medium mt-0.5">{step.description}</p>
-                            </div>
-                        </li>
-                    )
-                })}
-            </ul>
-        </nav>
-    )
+                            </li>
+                        )
+                    })}
+                </ul>
+            </nav>
+        )
+    }
 
     const renderStepContent = () => {
         switch (currentStep) {
@@ -368,7 +394,7 @@ const CreateTourPage = () => {
                 <ButtonSecondary
                     disabled={currentStep === 1 || loading}
                     onClick={() => setCurrentStep(currentStep - 1)}
-                    className="px-8"
+                    className="cursor-pointer px-8"
                 >
                     Geri Dön
                 </ButtonSecondary>
@@ -377,7 +403,7 @@ const CreateTourPage = () => {
                     {currentStep < 4 ? (
                         <ButtonPrimary
                             onClick={handleNextStep}
-                            className="px-10"
+                            className="px-10 cursor-pointer"
                         >
                             Devam Et
                         </ButtonPrimary>
@@ -385,7 +411,7 @@ const CreateTourPage = () => {
                         <ButtonPrimary
                             onClick={handleSubmit}
                             disabled={loading}
-                            className="px-12 bg-primary-6000"
+                            className="px-12 cursor-pointer bg-primary-6000"
                         >
                             {loading ? 'Yayınlanıyor...' : 'Turu Yayınla'}
                         </ButtonPrimary>

@@ -28,7 +28,8 @@ export async function GET(request: Request) {
                         customerProfile: true
                     }
                 },
-                passengers: true
+                passengers: true,
+                extras: true,
             },
             orderBy: { createdAt: "desc" },
         });

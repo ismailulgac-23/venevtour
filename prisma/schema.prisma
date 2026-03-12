@@ -60,6 +60,9 @@ model User {
 
   // Relations - Reviews
   reviews Review[]
+
+  // Relations - Blog Posts
+  blogPosts BlogPost[]
 }
 
 // Customer Profile
@@ -195,6 +198,8 @@ model TourExtra {
   name        String
   price       Decimal
   isPerPerson Boolean @default(true)
+
+  reservations Reservation[]
 }
 
 // Reservation
@@ -219,6 +224,7 @@ model Reservation {
   updatedAt DateTime @updatedAt
 
   passengers ReservationPassenger[]
+  extras     TourExtra[]
 }
 
 model ReservationPassenger {
@@ -259,4 +265,56 @@ model Review {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Blog Model
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  excerpt   String?
+  image     String?
+  isActive  Boolean  @default(true)
+
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// FAQ Model
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Global Site Settings for dynamic contact info, etc.
+model SiteSettings {
+  id        String   @id @default("global_settings")
+  address   String   @default("İstanbul, Türkiye - Örnek Mahallesi, Turizm Sokak No: 10")
+  email     String   @default("destek@venevtour.com")
+  phone     String   @default("+90 (212) 123 45 67")
+  facebook  String?  @default("https://facebook.com/venevtour")
+  twitter   String?  @default("https://twitter.com/venevtour")
+  instagram String?  @default("https://instagram.com/venevtour")
+  linkedin  String?  @default("https://linkedin.com/company/venevtour")
+  updatedAt DateTime @updatedAt
+}
+
+// Contact Form Submissions
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

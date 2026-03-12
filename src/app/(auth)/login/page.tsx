@@ -7,9 +7,11 @@ import Input from '@/shared/Input'
 import Logo from '@/shared/Logo'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 const Page = () => {
   const router = useRouter()
+  const { refreshUser } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -40,6 +42,7 @@ const Page = () => {
       }
 
       // Başarılı giriş
+      await refreshUser()
       router.push('/')
       router.refresh()
     } catch (err: any) {

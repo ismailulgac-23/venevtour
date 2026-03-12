@@ -37,28 +37,30 @@ export const ToursSearchForm = ({ className, formStyle = 'default' }: Props) => 
     return (
         <form
             className={clsx(
-                'relative z-10 flex w-full rounded-full bg-white shadow-xl [--form-bg:var(--color-white)] dark:bg-neutral-800 dark:shadow-2xl dark:[--form-bg:var(--color-neutral-800)]',
+                'relative z-20 flex w-full flex-col lg:flex-row lg:items-center rounded-3xl lg:rounded-full bg-white shadow-xl [--form-bg:var(--color-white)] dark:bg-neutral-800 dark:shadow-2xl dark:[--form-bg:var(--color-neutral-800)]',
                 className,
                 formStyle === 'small' && 'custom-shadow-1',
                 formStyle === 'default' && 'shadow-xl dark:shadow-2xl'
             )}
             onSubmit={handleOnSubmit}
         >
-            <LocationInputField className="hero-search-form__field-after flex-5/12" fieldStyle={formStyle} />
-            <VerticalDividerLine />
+            <LocationInputField className="lg:flex-5/12 border-b lg:border-b-0 border-neutral-100 dark:border-neutral-700" fieldStyle={formStyle} />
+            <div className="hidden lg:block h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <DateRangeField
-                className="hero-search-form__field-before hero-search-form__field-after flex-4/12"
+                className="lg:flex-4/12 border-b lg:border-b-0 border-neutral-100 dark:border-neutral-700"
                 fieldStyle={formStyle}
                 description={"Ne Zaman?"}
             />
-            <VerticalDividerLine />
+            <div className="hidden lg:block h-8 w-px bg-neutral-200 dark:bg-neutral-700" />
             <GuestNumberField
-                className="hero-search-form__field-before flex-4/12"
+                className="lg:flex-4/12"
                 clearDataButtonClassName={clsx(formStyle === 'small' && 'sm:end-18', formStyle === 'default' && 'sm:end-22')}
                 fieldStyle={formStyle}
             />
 
-            <ButtonSubmit fieldStyle={formStyle} className="z-10" />
+            <div className="flex items-center justify-center p-4 lg:p-0">
+                <ButtonSubmit fieldStyle={formStyle} />
+            </div>
         </form>
     )
 }

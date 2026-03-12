@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import ReservationTable from '../../components/ReservationTable'
 
 const AgentReservationsPage = () => {
@@ -25,6 +26,24 @@ const AgentReservationsPage = () => {
         fetchReservations()
     }, [])
 
+    const handleStatusUpdate = async (id: string, status: string) => {
+        try {
+            const res = await fetch(`/api/agent/reservations/${id}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            })
+            if (res.ok) {
+                toast.success('Rezervasyon durumu güncellendi.')
+                fetchReservations()
+            } else {
+                toast.error('İşlem başarısız.')
+            }
+        } catch (error) {
+            toast.error('Hata oluştu.')
+        }
+    }
+
     return (
         <div className="space-y-10">
             <div>
@@ -46,7 +65,11 @@ const AgentReservationsPage = () => {
                     <p className="text-neutral-500 mt-2 font-medium">Yeni talepler geldiğinde burada görünecektir.</p>
                 </div>
             ) : (
-                <ReservationTable reservations={reservations} role="AGENT" />
+                <ReservationTable 
+                    reservations={reservations} 
+                    role="AGENT" 
+                    onStatusUpdate={handleStatusUpdate}
+                />
             )}
         </div>
     )

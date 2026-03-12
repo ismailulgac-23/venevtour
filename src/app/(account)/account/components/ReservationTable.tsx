@@ -8,11 +8,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 interface Props {
     reservations: any[]
     role: 'AGENT' | 'CUSTOMER'
+    onStatusUpdate?: (id: string, status: string) => Promise<void>
 }
 
-const ReservationTable = ({ reservations, role }: Props) => {
+const ReservationTable = ({ reservations, role, onStatusUpdate }: Props) => {
     const [selectedRes, setSelectedRes] = useState<any>(null)
     const [isOpen, setIsOpen] = useState(false)
+    const [actionLoading, setActionLoading] = useState(false)
 
     const openDetails = (res: any) => {
         setSelectedRes(res)
@@ -22,6 +24,17 @@ const ReservationTable = ({ reservations, role }: Props) => {
     const closeDetails = () => {
         setIsOpen(false)
         setTimeout(() => setSelectedRes(null), 200)
+    }
+
+    const handleAction = async (status: string) => {
+        if (!selectedRes || !onStatusUpdate) return
+        setActionLoading(true)
+        try {
+            await onStatusUpdate(selectedRes.id, status)
+            closeDetails()
+        } finally {
+            setActionLoading(false)
+        }
     }
 
     const getStatusStyle = (status: string) => {
@@ -141,7 +154,13 @@ const ReservationTable = ({ reservations, role }: Props) => {
                                                 <DialogTitle as="h3" className="text-2xl font-bold text-neutral-900 dark:text-white">
                                                     Rezervasyon Detayları
                                                 </DialogTitle>
-                                                <p className="text-sm text-neutral-400 mt-1 font-medium">#{selectedRes.id.toUpperCase()}</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <p className="text-sm text-neutral-400 font-medium">#{selectedRes.id.toUpperCase()}</p>
+                                                    <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                                                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                                                        {selectedRes.createdAt ? new Date(selectedRes.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
+                                                    </p>
+                                                </div>
                                             </div>
                                             <button
                                                 onClick={closeDetails}
@@ -246,17 +265,55 @@ const ReservationTable = ({ reservations, role }: Props) => {
                                                         </div>
                                                     ))}
                                                 </div>
+
+                                                {/* EXTRAS */}
+                                                <div className="pt-4 space-y-4">
+                                                    <h4 className="text-xs font-bold text-primary-600 uppercase tracking-widest leading-none">Seçilen Ekstralar</h4>
+                                                    <div className="space-y-2">
+                                                        {selectedRes.extras && selectedRes.extras.length > 0 ? (
+                                                            selectedRes.extras.map((extra: any) => (
+                                                                <div key={extra.id} className="flex justify-between items-center p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800">
+                                                                    <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300">{extra.name}</span>
+                                                                    <span className="text-sm font-bold text-primary-600">{Number(extra.price).toLocaleString('tr-TR')} ₺</span>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <p className="text-xs font-medium text-neutral-400 italic">Dahil olan ekstra bulunmamaktadır.</p>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* FOOTER */}
-                                        <div className="px-10 py-6 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/30 dark:bg-neutral-800/20 flex justify-end">
-                                            <button
-                                                onClick={closeDetails}
-                                                className="px-8 h-12 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-2xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-neutral-900/10 dark:shadow-white/5"
-                                            >
-                                                Kapat
-                                            </button>
+                                        <div className="px-10 py-6 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50/30 dark:bg-neutral-800/20 flex justify-end gap-3">
+                                            {role === 'AGENT' && selectedRes.status === 'PENDING' ? (
+                                                <>
+                                                    <button
+                                                        disabled={actionLoading}
+                                                        onClick={() => handleAction('CANCELLED')}
+                                                        className="px-8 h-12 bg-rose-50 text-rose-600 rounded-2xl font-bold text-sm hover:bg-rose-100 transition-all disabled:opacity-50"
+                                                    >
+                                                        Talebi Reddet
+                                                    </button>
+                                                    <button
+                                                        disabled={actionLoading}
+                                                        onClick={() => handleAction('CONFIRMED')}
+                                                        className="px-8 h-12 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-2xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 flex items-center gap-2"
+                                                    >
+                                                        {actionLoading ? (
+                                                            <div className="size-4 border-2 border-white dark:border-neutral-900 border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : 'Hemen Onayla'}
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <button
+                                                    onClick={closeDetails}
+                                                    className="px-8 h-12 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-2xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-neutral-900/10 dark:shadow-white/5"
+                                                >
+                                                    Kapat
+                                                </button>
+                                            )}
                                         </div>
                                     </DialogPanel>
                                 </TransitionChild>

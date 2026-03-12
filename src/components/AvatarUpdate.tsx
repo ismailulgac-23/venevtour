@@ -61,6 +61,34 @@ const AvatarUpdate: FC<AvatarUpdateProps> = ({ className = '' }) => {
         }
     }
 
+    const handleRemoveAvatar = async () => {
+        if (!window.confirm('Profil fotoğrafınızı kaldırmak istediğinize emin misiniz?')) return
+
+        setLoading(true)
+        const formData = new FormData()
+        formData.append('removeAvatar', 'true')
+
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PATCH',
+                body: formData
+            })
+
+            if (res.ok) {
+                toast.success('Profil fotoğrafı kaldırıldı.')
+                await refreshUser()
+            } else {
+                toast.error('Fotoğraf kaldırılırken bir hata oluştu.')
+            }
+        } catch (error) {
+            toast.error('Bağlantı hatası.')
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const isDefaultAvatar = user?.avatarUrl === "/uploads/users/default-avatar.jpg"
+
     return (
         <div className={`flex flex-col items-center sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-8 ${className}`}>
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
@@ -100,6 +128,15 @@ const AvatarUpdate: FC<AvatarUpdateProps> = ({ className = '' }) => {
                         <CloudArrowUpIcon className="size-4" />
                         Fotoğraf Değiştir
                     </button>
+                    {!isDefaultAvatar && (
+                        <button
+                            onClick={handleRemoveAvatar}
+                            className="px-4 py-2 bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 rounded-xl text-xs font-bold hover:bg-rose-600 hover:text-white transition-all flex items-center gap-2"
+                        >
+                            <TrashIcon className="size-4" />
+                            Kaldır
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

@@ -166,9 +166,45 @@ const Page = () => {
           <YourTrip guestCount={resData.passengerCount} />
 
           <div className="space-y-8">
-            <div className="flex items-center gap-4">
-              <div className="size-10 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-xl flex items-center justify-center font-bold">1</div>
-              <h3 className="text-xl font-bold">Katılımcı Bilgileri</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="size-10 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-xl flex items-center justify-center font-bold">1</div>
+                <h3 className="text-xl font-bold">Katılımcı Bilgileri</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  // Fill Passengers
+                  const testPassengers = passengers.map((_, i) => ({
+                    firstName: ['Ahmet', 'Mehmet', 'Ayşe', 'Fatma'][i % 4],
+                    lastName: ['Yılmaz', 'Kaya', 'Demir', 'Çelik'][i % 4],
+                    birthDate: '1990-01-01',
+                    idNumber: '12345678901',
+                    email: `test${i}@example.com`,
+                    phone: '5551234567'
+                  }))
+                  setPassengers(testPassengers)
+
+                  // Fill Payment Info (DOM Access for nested PayWith)
+                  setTimeout(() => {
+                    const setVal = (name: string, val: string) => {
+                      const el = document.getElementsByName(name)[0] as HTMLInputElement | HTMLTextAreaElement
+                      if (el) el.value = val
+                    }
+                    setVal('card-number', '4242 4242 4242 4242')
+                    setVal('card-holder', 'HIZLI TEST KULLANICISI')
+                    setVal('expiration-date', '12/28')
+                    setVal('CVC', '123')
+                    setVal('email', 'test-paypal@example.com')
+                    setVal('message', 'Bu bir otomatik test mesajıdır. Lütfen dikkate almayınız.')
+                  }, 100)
+
+                  toast.success('Tüm form verileri dolduruldu!')
+                }}
+                className="px-4 py-2 bg-emerald-600 text-white dark:bg-emerald-500 rounded-xl text-xs font-bold border-none hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95"
+              >
+                ⚡ HIZLI DOLDUR (TÜM FORM)
+              </button>
             </div>
 
             <div className="grid grid-cols-1 gap-8">

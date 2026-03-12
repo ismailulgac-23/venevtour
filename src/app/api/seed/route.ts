@@ -48,10 +48,14 @@ export async function GET() {
     const p = prisma as any;
     try {
         // 1. CLEANUP
+        await p.blogPost.deleteMany();
+        await p.fAQ.deleteMany();
         await p.reservationPassenger.deleteMany();
         await p.reservation.deleteMany();
         await p.review.deleteMany();
         await p.favorite.deleteMany();
+        await p.contactMessage.deleteMany();
+        await p.siteSettings.deleteMany();
         await p.tourRoadmap.deleteMany();
         await p.tourExtra.deleteMany();
         await p.tourImage.deleteMany();
@@ -60,6 +64,20 @@ export async function GET() {
         await p.agentProfile.deleteMany();
         await p.customerProfile.deleteMany();
         await p.user.deleteMany();
+
+        // 0. CREATE SITE SETTINGS
+        await p.siteSettings.create({
+            data: {
+                id: "global_settings",
+                address: "İstanbul, Türkiye - Örnek Mahallesi, Turizm Sokak No: 10",
+                email: "destek@venevtour.com",
+                phone: "+90 (212) 123 45 67",
+                facebook: "https://facebook.com/venevtour",
+                twitter: "https://twitter.com/venevtour",
+                instagram: "https://instagram.com/venevtour",
+                linkedin: "https://linkedin.com/company/venevtour",
+            }
+        });
 
         const passwordHash = await hashPassword("123456");
 
@@ -76,13 +94,61 @@ export async function GET() {
         }
 
         // 3. CREATE ADMIN
-        await p.user.create({
+        const admin = await p.user.create({
             data: {
                 email: "admin@tour.com",
                 passwordHash,
                 role: "ADMIN",
                 status: "ACTIVE",
             }
+        });
+
+        // 3.1 CREATE BLOG POSTS
+        await p.blogPost.createMany({
+            data: [
+                {
+                    title: "Kapadokya'da Balon Turu Hakkında Bilmeniz Gerekenler",
+                    slug: "kapadokya-balon-turu-rehberi",
+                    excerpt: "Eşsiz manzarasıyla Kapadokya'da gökyüzüne dokunmaya hazır mısınız?",
+                    content: "Kapadokya balon turu, hayatınızda bir kez yaşamanız gereken eşsiz bir deneyimdir. Sabahın ilk ışıklarıyla havalanan yüzlerce balon, peri bacalarının üzerinden süzülürken size masalsı bir manzara sunar...",
+                    image: "https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg",
+                    authorId: admin.id,
+                    isActive: true
+                },
+                {
+                    title: "Yaz Tatili İçin En İyi 5 Rota",
+                    slug: "en-iyi-yaz-rotalari",
+                    excerpt: "Deniz, kum ve güneşin tadını çıkarabileceğiniz en popüler tatil bölgeleri.",
+                    content: "Bu yaz tatilinizi nerede geçireceğinize karar veremediniz mi? İşte sizin için seçtiğimiz en iyi 5 rota: Kaş, Fethiye, Bodrum, Alanya ve Marmaris...",
+                    image: "https://images.pexels.com/photos/2524368/pexels-photo-2524368.jpeg",
+                    authorId: admin.id,
+                    isActive: true
+                }
+            ]
+        });
+
+        // 3.2 CREATE FAQS
+        await p.fAQ.createMany({
+            data: [
+                {
+                    question: "Rezervasyonumu nasıl iptal edebilirim?",
+                    answer: "Rezervasyonunuzu tur tarihinden 48 saat öncesine kadar kesintisiz iptal edebilirsiniz. İptal talebiniz için panelinizden veya bizimle iletişime geçerek destek alabilirsiniz.",
+                    order: 1,
+                    isActive: true
+                },
+                {
+                    question: "Ödeme yöntemleri nelerdir?",
+                    answer: "Web sitemiz üzerinden kredi kartı, banka kartı ve PayPal ile güvenli ödeme yapabilirsiniz. Ayrıca acentelerimizle görüşerek havale/EFT seçeneklerini de değerlendirebilirsiniz.",
+                    order: 2,
+                    isActive: true
+                },
+                {
+                    question: "Turlarımızda sigorta dahil mi?",
+                    answer: "Evet, tüm paket turlarımızda zorunlu seyahat sigortası fiyata dahildir.",
+                    order: 3,
+                    isActive: true
+                }
+            ]
         });
 
         // 4. CREATE AGENTS

@@ -90,7 +90,7 @@ const ExperiencesCardH: FC<Props> = ({ className = '', data }) => {
           <div className="flex items-center gap-x-3 text-sm text-neutral-700 dark:text-neutral-300">
             <Avatar src={author.avatarUrl} />
             <span className="hidden sm:inline-block">
-              <span className="hidden sm:inline">{T['common']['Hosted by']}</span> {author.displayName}
+              {author.displayName}
             </span>
           </div>
           <span className="text-base font-semibold text-secondary-700">

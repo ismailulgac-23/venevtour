@@ -81,6 +81,9 @@ export async function POST(request: Request) {
                         birthDate: p.birthDate ? new Date(p.birthDate) : undefined,
                     })),
                 },
+                extras: {
+                    connect: (selectedExtras || []).map((id: string) => ({ id })),
+                },
             },
         });
 
@@ -139,7 +142,8 @@ export async function GET(request: Request) {
                         }
                     }
                 },
-                passengers: true
+                passengers: true,
+                extras: true,
             },
             orderBy: { createdAt: "desc" },
         });

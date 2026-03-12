@@ -7,8 +7,11 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react'
 import { CalendarIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import { FC, useState, useEffect } from 'react'
-import DatePicker from 'react-datepicker'
+import DatePicker, { registerLocale } from 'react-datepicker'
+import tr from 'date-fns/locale/tr'
 import { ClearDataButton } from './ClearDataButton'
+
+registerLocale('tr', tr)
 
 const styles = {
   button: {
@@ -22,7 +25,7 @@ const styles = {
     small: 'text-base',
   },
   panel: {
-    base: 'absolute top-full z-10 mt-3 w-3xl transition duration-150 data-closed:translate-y-1 data-closed:opacity-0 start-1/2 -translate-x-1/2 overflow-hidden rounded-3xl bg-white p-8 shadow-lg ring-1 ring-black/5 dark:bg-neutral-800',
+    base: 'absolute top-full z-50 mt-3 w-3xl transition duration-150 data-closed:translate-y-1 data-closed:opacity-0 start-1/2 -translate-x-1/2 overflow-hidden rounded-3xl bg-white p-8 shadow-lg ring-1 ring-black/5 dark:bg-neutral-800',
     default: '',
     small: '',
   },
@@ -115,6 +118,8 @@ export const DateRangeField: FC<Props> = ({
                   monthsShown={2}
                   showPopperArrow={false}
                   inline
+                  locale="tr"
+                  minDate={new Date()}
                   renderCustomHeader={(p) => <DatePickerCustomHeaderTwoMonth {...p} />}
                   renderDayContents={(day, date) => <DatePickerCustomDay dayOfMonth={day} date={date} />}
                 />
@@ -132,6 +137,8 @@ export const DateRangeField: FC<Props> = ({
                   monthsShown={2}
                   showPopperArrow={false}
                   inline
+                  locale="tr"
+                  minDate={new Date()}
                   renderCustomHeader={(p) => <DatePickerCustomHeaderTwoMonth {...p} />}
                   renderDayContents={(day, date) => <DatePickerCustomDay dayOfMonth={day} date={date} />}
                 />

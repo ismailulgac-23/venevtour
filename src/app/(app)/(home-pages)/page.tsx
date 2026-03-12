@@ -14,6 +14,10 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { cookies } from 'next/headers'
+import { verifyJWT } from '@/lib/auth-utils'
+import { HotAirBalloonIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 
 export const metadata: Metadata = {
   title: 'Anasayfa - Tur Rezervasyon',
@@ -85,6 +89,22 @@ async function Page({ searchParams }: PageProps) {
     }
   ]
 
+  // Auth kontrolü ve favorileri çek
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+  let userFavorites: string[] = []
+
+  if (token) {
+    const payload = await verifyJWT(token)
+    if (payload && payload.userId) {
+      const favorites = await prisma.favorite.findMany({
+        where: { userId: payload.userId as string },
+        select: { tourId: true }
+      })
+      userFavorites = favorites.map(f => f.tourId)
+    }
+  }
+
   // UI formatına dönüştür
   const stayListings: any[] = tours.map((tour) => ({
     id: tour.id,
@@ -97,12 +117,14 @@ async function Page({ searchParams }: PageProps) {
       tour.images[0]?.url ||
       'https://images.pexels.com/photos/1659438/pexels-photo-1659438.jpeg',
     galleryImgs: tour.images.map((img) => img.url),
-    like: false,
+    like: userFavorites.includes(tour.id),
     address: tour.location,
     reviewStart: 5.0,
     reviewCount: 0,
     price: `${Number(tour.priceFrom)} ₺`,
     maxGuests: tour.maxCapacity || 10,
+    durationDays: tour.durationDays,
+    category: tour.category,
     bedrooms: 0,
     bathrooms: 0,
     beds: 0,
@@ -148,10 +170,19 @@ async function Page({ searchParams }: PageProps) {
               filterOptions={filterOptions}
             />
           ) : (
-            <div className="text-center py-20 bg-neutral-50 dark:bg-neutral-800/50 rounded-3xl border-2 border-dashed border-neutral-200 dark:border-neutral-700">
-              <div className="flex flex-col items-center">
-                <p className="text-neutral-500 mb-4">Seçtiğiniz filtrelere uygun tur bulunamadı.</p>
-                <Link href="/" className="text-primary-600 font-medium hover:underline">Filtreleri Temizle</Link>
+            <div className="text-center py-24 bg-neutral-50 dark:bg-neutral-800/50 rounded-[40px] border-2 border-dashed border-neutral-200 dark:border-neutral-700">
+              <div className="flex flex-col items-center max-w-sm mx-auto">
+                <div className="w-16 h-16 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6 text-neutral-400">
+                  <HugeiconsIcon icon={HotAirBalloonIcon} size={32} />
+                </div>
+                <h3 className="text-xl font-bold mb-2">Tur Bulunamadı</h3>
+                <p className="text-neutral-500 mb-8 leading-relaxed">Seçtiğiniz filtrelere uygun tur bulunamadı. Lütfen filtrelerinizi temizleyerek tekrar deneyin.</p>
+                <Link 
+                  href="/" 
+                  className="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-primary-600 text-white font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-200 dark:shadow-none"
+                >
+                  Filtreleri Temizle
+                </Link>
               </div>
             </div>
           )}

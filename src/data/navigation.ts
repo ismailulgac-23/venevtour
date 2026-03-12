@@ -9,6 +9,15 @@ export type TNavigationItem = Partial<{
 }>
 
 export async function getNavigation(): Promise<TNavigationItem[]> {
+  let categories: any[] = []
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || ''}/api/categories`)
+    const json = await res.json()
+    categories = json.data || []
+  } catch (e) {
+    console.error('Menu categories fetch error:', e)
+  }
+
   return [
     {
       id: '1',
@@ -21,14 +30,26 @@ export async function getNavigation(): Promise<TNavigationItem[]> {
       name: 'Turlar',
     },
     {
-      id: '3',
-      href: '/become-an-agent',
-      name: 'Acente Başvurusu'
+      id: 'categories',
+      name: 'Kategoriler',
+      type: 'dropdown',
+      children: categories.map(c => ({
+        id: c.id,
+        name: c.name,
+        href: `/tours?category=${c.slug}`
+      }))
     },
     {
-      id: '4',
-      href: '/account',
-      name: 'Hesabım'
+      id: 'corporate',
+      name: 'Kurumsal',
+      type: 'dropdown',
+      children: [
+        { id: 'cor1', name: 'Hakkımızda', href: '/about' },
+        { id: 'cor2', name: 'Blog & Haberler', href: '/blog' },
+        { id: 'cor3', name: 'Sıkça Sorulanlar (SSS)', href: '/faqs' },
+        { id: 'cor4', name: 'Acenteler İçin', href: '/become-an-agent' },
+        { id: 'cor5', name: 'İletişim', href: '/contact' },
+      ]
     }
   ]
 }

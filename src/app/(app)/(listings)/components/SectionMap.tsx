@@ -5,15 +5,20 @@ interface Props {
   className?: string
   heading?: string
   subheading?: string
+  address?: string
+  map?: {
+    lat: number
+    lng: number
+  }
 }
 
-const SectionMap = ({ className, heading, subheading }: Props) => {
+const SectionMap = ({ className, heading, subheading, address, map }: Props) => {
   return (
     <div className="listingSection__wrap">
       {/* HEADING */}
       <div>
-        <SectionHeading>Location </SectionHeading>
-        <SectionSubheading> San Diego, CA, United States of America (SAN-San Diego Intl.) </SectionSubheading>
+        <SectionHeading>{address || 'Tur Lokasyonu'}</SectionHeading>
+        {subheading && <SectionSubheading>{subheading}</SectionSubheading>}
       </div>
       <Divider className="w-14!" />
 
@@ -26,7 +31,7 @@ const SectionMap = ({ className, heading, subheading }: Props) => {
             loading="lazy"
             allowFullScreen
             referrerPolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAGVJfZMAKYfZ71nzL_v5i3LjTTWnCYwTY&q=Eiffel+Tower,Paris+France"
+            src={`https://www.google.com/maps/embed/v1/view?key=AIzaSyAGVJfZMAKYfZ71nzL_v5i3LjTTWnCYwTY&center=${map?.lat || 41.0082},${map?.lng || 28.9784}&zoom=14`}
           ></iframe>
         </div>
       </div>

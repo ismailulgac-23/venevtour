@@ -166,12 +166,20 @@ const AgentDashboard = () => {
                     color="bg-orange-600"
                     trend="%5"
                 />
-                <StatCard
-                    title="Toplam Gelir"
-                    value={`${Number(stats?.totalRevenue || 0).toLocaleString('tr-TR')} ₺`}
-                    icon={CurrencyDollarIcon}
-                    color="bg-violet-600"
-                />
+                <div className="relative group overflow-hidden">
+                    <StatCard
+                        title="Toplam Gelir"
+                        value={`${Number(stats?.totalRevenue || 0).toLocaleString('tr-TR')} ₺`}
+                        icon={CurrencyDollarIcon}
+                        color="bg-violet-600"
+                    />
+                    <Link 
+                        href="/account/agent/revenue"
+                        className="absolute bottom-4 right-5 text-[10px] font-black uppercase text-violet-400 group-hover:text-violet-600 transition-colors flex items-center gap-1"
+                    >
+                        Detaylı Rapor <ArrowUpRightIcon className="size-3" />
+                    </Link>
+                </div>
             </div>
 
             {/* Micro Listings Section */}

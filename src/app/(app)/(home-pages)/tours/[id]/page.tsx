@@ -13,6 +13,8 @@ import SectionListingReviews from '../../../(listings)/components/SectionListing
 import SectionMap from '../../../(listings)/components/SectionMap'
 import ReservationForm from './ReservationForm'
 import React from 'react'
+import { cookies } from 'next/headers'
+import { verifyJWT } from '@/lib/auth-utils'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -66,6 +68,17 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     updatedAt: tour.updatedAt.toISOString(),
     tourStartDate: tour.tourStartDate ? tour.tourStartDate.toISOString() : null,
     tourEndDate: tour.tourEndDate ? tour.tourEndDate.toISOString() : null,
+    agent: {
+      ...tour.agent,
+      createdAt: tour.agent.createdAt.toISOString(),
+      updatedAt: tour.agent.updatedAt.toISOString(),
+      agentProfile: tour.agent.agentProfile ? {
+        ...tour.agent.agentProfile,
+        commissionAmount: Number(tour.agent.agentProfile.commissionAmount),
+        createdAt: tour.agent.agentProfile.createdAt.toISOString(),
+        updatedAt: tour.agent.agentProfile.updatedAt.toISOString(),
+      } : null,
+    },
     extras: tour.extras.map((extra: any) => ({
       ...extra,
       price: Number(extra.price),
@@ -83,6 +96,17 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         ...r.user,
         createdAt: r.user.createdAt.toISOString(),
         updatedAt: r.user.updatedAt.toISOString(),
+        customerProfile: r.user.customerProfile ? {
+          ...r.user.customerProfile,
+          createdAt: r.user.customerProfile.createdAt.toISOString(),
+          updatedAt: r.user.customerProfile.updatedAt.toISOString(),
+        } : null,
+        agentProfile: r.user.agentProfile ? {
+          ...r.user.agentProfile,
+          commissionAmount: Number(r.user.agentProfile.commissionAmount),
+          createdAt: r.user.agentProfile.createdAt.toISOString(),
+          updatedAt: r.user.agentProfile.updatedAt.toISOString(),
+        } : null,
       }
     }))
   }
@@ -100,7 +124,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   // Mapping Host data to expected format
   const host = {
     displayName: tour.agent.agentProfile?.companyName || 'Acente',
-    avatarUrl: tour.agent.agentProfile?.avatarUrl || `https://i.pravatar.cc/150?u=${tour.agentId}`,
+    avatarUrl: tour.agent.avatarUrl || "/uploads/users/default-avatar.jpg",
     description: tour.agent.agentProfile?.bio || 'Güvenilir tur acentesi.',
     handle: tour.agent.id,
     rating: agentRating,
@@ -115,6 +139,25 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     address: tour.agent.agentProfile?.address
   }
 
+  // Check if liked by current user
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+  let initialIsLiked = false
+  if (token) {
+    const payload = await verifyJWT(token)
+    if (payload && payload.userId) {
+      const fav = await prisma.favorite.findUnique({
+        where: {
+          userId_tourId: {
+            userId: payload.userId as string,
+            tourId: id
+          }
+        }
+      })
+      initialIsLiked = !!fav
+    }
+  }
+
   const renderSectionHeader = () => {
     return (
       <SectionHeader
@@ -124,6 +167,8 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         reviewCount={reviewCount}
         reviewStart={reviewStart}
         title={serializedTour.title}
+        tourId={serializedTour.id}
+        isLiked={initialIsLiked}
       >
         <div className="flex flex-col items-center space-y-3 text-center sm:flex-row sm:space-y-0 sm:gap-x-3 sm:text-start">
           <ClockIcon className="h-6 w-6" />
@@ -243,7 +288,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 datetime: r.createdAt,
                 content: r.comment,
                 rating: r.rating,
-                authorAvatar: r.user.customerProfile?.avatarUrl || `https://i.pravatar.cc/150?u=${r.userId}`,
+                authorAvatar: r.user.avatarUrl || "/uploads/users/default-avatar.jpg",
                 title: ""
               }))}
             />
