@@ -6,7 +6,6 @@ import T from '@/utils/getT'
 import * as Headless from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/24/solid'
 import clsx from 'clsx'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { FC, useEffect, useState } from 'react'
 import { ButtonSubmit, DateRangeField, LocationInputField, VerticalDividerLine } from './ui'
@@ -190,8 +189,13 @@ export const FlightSearchForm: FC<Props> = ({ className, formStyle = 'default' }
     )
   }
 
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form
+    <form
       className={clsx(
         'relative z-10 w-full bg-white [--form-bg:var(--color-white)] dark:bg-neutral-800 dark:[--form-bg:var(--color-neutral-800)]',
         className,
@@ -199,7 +203,7 @@ export const FlightSearchForm: FC<Props> = ({ className, formStyle = 'default' }
         formStyle === 'default' &&
           'rounded-t-2xl rounded-b-[40px] shadow-xl xl:rounded-t-3xl xl:rounded-b-[48px] dark:shadow-2xl'
       )}
-      action={handleFormSubmit}
+      onSubmit={handleOnSubmit}
     >
       <div
         className={clsx(
@@ -242,6 +246,6 @@ export const FlightSearchForm: FC<Props> = ({ className, formStyle = 'default' }
 
         <ButtonSubmit fieldStyle={formStyle} />
       </div>
-    </Form>
+    </form>
   )
 }

@@ -3,7 +3,6 @@
 import converSelectedDateToString from '@/utils/converSelectedDateToString'
 import T from '@/utils/getT'
 import * as Headless from '@headlessui/react'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import DatesRangeInput from '../DatesRangeInput'
@@ -41,8 +40,17 @@ const CarSearchFormMobile = () => {
     router.push(url)
   }
 
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form id="form-hero-search-form-mobile" action={handleFormSubmit} className="flex w-full flex-col gap-y-3">
+    <form
+      id="form-hero-search-form-mobile"
+      onSubmit={handleOnSubmit}
+      className="flex w-full flex-col gap-y-3"
+    >
       {/* RADIO */}
       <Headless.RadioGroup
         value={dropOffLocationType}
@@ -117,7 +125,7 @@ const CarSearchFormMobile = () => {
         <DatesRangeInput onChange={onChangeDate} />
       </FieldPanelContainer>
       {/*  */}
-    </Form>
+    </form>
   )
 }
 

@@ -2,7 +2,6 @@
 
 import { GuestsObject } from '@/type'
 import converSelectedDateToString from '@/utils/converSelectedDateToString'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import DatesRangeInput from '../DatesRangeInput'
@@ -55,8 +54,17 @@ const ExperienceSearchFormMobile = () => {
     ? `${totalGuests} Kişi`
     : 'Katılımcı ekleyin'
 
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form id="form-hero-search-form-mobile" action={handleFormSubmit} className="flex w-full flex-col gap-y-4">
+    <form
+      id="form-hero-search-form-mobile"
+      onSubmit={handleOnSubmit}
+      className="flex w-full flex-col gap-y-3"
+    >
       {/*  LOCATION */}
       <FieldPanelContainer
         isActive={fieldNameShow === 'location'}
@@ -92,7 +100,7 @@ const ExperienceSearchFormMobile = () => {
       >
         <GuestsInput defaultValue={guestInput} onChange={setGuestInput} />
       </FieldPanelContainer>
-    </Form>
+    </form>
   )
 }
 

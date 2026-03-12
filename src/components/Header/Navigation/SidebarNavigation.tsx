@@ -10,7 +10,6 @@ import { ChevronDownIcon } from '@heroicons/react/24/solid'
 import { Search01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import clsx from 'clsx'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import React, { useEffect } from 'react'
 import CurrLangDropdown from '../CurrLangDropdown'
@@ -107,17 +106,6 @@ const SidebarNavigation: React.FC<Props> = ({ data, currencies, languages }) => 
     )
   }
 
-  // Handle form submission
-  const handleSubmitForm = async (formData: FormData) => {
-    const formObject = Object.fromEntries(formData.entries())
-    // Handle form submission logic here
-    console.log('Form submitted:', formObject)
-    const searchQuery = formObject.search as string
-    // Close the popover
-    handleClose()
-    // Redirect to the search page
-    router.push('/stay-categories/all' + (searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''))
-  }
 
   const _renderMenuChild = (
     item: TNavigationItem,

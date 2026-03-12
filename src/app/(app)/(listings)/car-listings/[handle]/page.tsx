@@ -10,7 +10,6 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import { Backpack02Icon, HumidityIcon, SeatSelectorIcon, Settings03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Metadata } from 'next'
-import Form from 'next/form'
 import { redirect } from 'next/navigation'
 import { Fragment } from 'react'
 import DatesRangeInputPopover from '../../components/DatesRangeInputPopover'
@@ -197,7 +196,7 @@ const Page = async ({ params }: { params: Promise<{ handle: string }> }) => {
           </div>
         </div>
 
-        <Form
+        <form
           action={handleSubmitForm}
           className="sticky top-5 mt-10 listingSection__wrap sm:shadow-xl"
           id="booking-form"
@@ -226,7 +225,7 @@ const Page = async ({ params }: { params: Promise<{ handle: string }> }) => {
           <ButtonPrimary form="booking-form" type="submit" className="w-full">
             {T['common']['Reserve']}
           </ButtonPrimary>
-        </Form>
+        </form>
       </>
     )
   }

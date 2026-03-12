@@ -23,7 +23,6 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import { FilterVerticalIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import clsx from 'clsx'
-import Form from 'next/form'
 import { useState } from 'react'
 import { PriceRangeSlider } from './PriceRangeSlider'
 

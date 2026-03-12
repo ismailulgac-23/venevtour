@@ -8,7 +8,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/shared/table'
 import T from '@/utils/getT'
 import { CheckCircleIcon, ClockIcon, LanguageIcon, UsersIcon } from '@heroicons/react/24/outline'
 import { Metadata } from 'next'
-import Form from 'next/form'
 import { redirect } from 'next/navigation'
 import DatesRangeInputPopover from '../../components/DatesRangeInputPopover'
 import GuestsInputPopover from '../../components/GuestsInputPopover'
@@ -211,7 +210,7 @@ const Page = async ({ params }: { params: Promise<{ handle: string }> }) => {
         </div>
 
         {/* FORM */}
-        <Form
+        <form
           action={handleSubmitForm}
           className="flex flex-col rounded-3xl border border-neutral-200 dark:border-neutral-700"
           id="booking-form"
@@ -219,7 +218,7 @@ const Page = async ({ params }: { params: Promise<{ handle: string }> }) => {
           <DatesRangeInputPopover className="z-11 flex-1" />
           <div className="w-full border-b border-neutral-200 dark:border-neutral-700"></div>
           <GuestsInputPopover className="flex-1" />
-        </Form>
+        </form>
 
         {/* SUM */}
         <DescriptionList>

@@ -2,7 +2,6 @@
 
 import T from '@/utils/getT'
 import clsx from 'clsx'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { ButtonSubmit, DateRangeField, GuestNumberField, LocationInputField, VerticalDividerLine } from './ui'
@@ -34,15 +33,20 @@ export const ExperiencesSearchForm = ({ className, formStyle = 'default' }: Prop
     router.push(url)
   }
 
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form
+    <form
       className={clsx(
         'relative z-10 flex w-full rounded-full bg-white shadow-xl [--form-bg:var(--color-white)] dark:bg-neutral-800 dark:shadow-2xl dark:[--form-bg:var(--color-neutral-800)]',
         className,
         formStyle === 'small' && 'custom-shadow-1',
         formStyle === 'default' && 'shadow-xl dark:shadow-2xl'
       )}
-      action={handleFormSubmit}
+      onSubmit={handleOnSubmit}
     >
       <LocationInputField className="hero-search-form__field-after flex-5/12" fieldStyle={formStyle} />
       <VerticalDividerLine />
@@ -59,6 +63,6 @@ export const ExperiencesSearchForm = ({ className, formStyle = 'default' }: Prop
       />
 
       <ButtonSubmit fieldStyle={formStyle} className="z-10" />
-    </Form>
+    </form>
   )
 }

@@ -3,7 +3,6 @@
 import T from '@/utils/getT'
 import * as Headless from '@headlessui/react'
 import clsx from 'clsx'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { FC, useEffect, useState } from 'react'
 import {
@@ -50,9 +49,14 @@ export const RealEstateHeroSearchForm: FC<Props> = ({ className, formStyle = 'de
     router.push(url)
   }
 
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form
-      action={handleFormSubmit}
+    <form
+      onSubmit={handleOnSubmit}
       className={clsx(
         'relative z-10 w-full bg-white [--form-bg:var(--color-white)] dark:bg-neutral-800 dark:[--form-bg:var(--color-neutral-800)]',
         className,
@@ -106,6 +110,6 @@ export const RealEstateHeroSearchForm: FC<Props> = ({ className, formStyle = 'de
 
         <ButtonSubmit fieldStyle={formStyle} />
       </div>
-    </Form>
+    </form>
   )
 }

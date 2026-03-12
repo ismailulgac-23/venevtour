@@ -3,7 +3,6 @@
 import convertNumbThousand from '@/utils/convertNumbThousand'
 import T from '@/utils/getT'
 import * as Headless from '@headlessui/react'
-import Form from 'next/form'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import FieldPanelContainer from '../FieldPanelContainer'
@@ -43,8 +42,17 @@ const RealestateSearchFormMobile = () => {
   }
 
   let typeStringConverted = selectedTypes.length ? selectedTypes.join(', ') : T['HeroSearchForm']['Add property']
+  const handleOnSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    handleFormSubmit(new FormData(e.currentTarget))
+  }
+
   return (
-    <Form id="form-hero-search-form-mobile" action={handleFormSubmit} className="flex w-full flex-col gap-y-3">
+    <form
+      id="form-hero-search-form-mobile"
+      onSubmit={handleOnSubmit}
+      className="flex w-full flex-col gap-y-3"
+    >
       {/* RADIO */}
       <Headless.RadioGroup
         value={tabType}
@@ -101,7 +109,7 @@ const RealestateSearchFormMobile = () => {
       >
         <PriceRangeInput defaultValue={rangePrices} onChange={setRangePrices} />
       </FieldPanelContainer>
-    </Form>
+    </form>
   )
 }
 
