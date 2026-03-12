@@ -3,7 +3,7 @@ import FooterQuickNavigation from '@/components/FooterQuickNavigation'
 import Header from '@/components/Header/Header'
 import HeroSearchFormMobile from '@/components/HeroSearchFormMobile/HeroSearchFormMobile'
 import HamburgerBtnMenu from '@/components/Header/HamburgerBtnMenu'
-import Aside from '@/components/aside'
+import Aside, { AsideProvider } from '@/components/aside'
 import AsideSidebarNavigation from '@/components/aside-sidebar-navigation'
 import 'rc-slider/assets/index.css'
 import React, { ReactNode } from 'react'
@@ -15,7 +15,7 @@ interface Props {
 
 const ApplicationLayout: React.FC<Props> = ({ children, header }) => {
   return (
-    <Aside.Provider>
+    <AsideProvider>
       <div className="relative z-50 hidden lg:block">{header ? header : <Header />}</div>
       {/* HeroSearchFormMobile - will display on mobile devices instead of Header-desktop */}
       <div className="sticky top-0 z-50 bg-white shadow-xs lg:hidden dark:bg-neutral-900">
@@ -33,7 +33,7 @@ const ApplicationLayout: React.FC<Props> = ({ children, header }) => {
       <Footer2 /> {/* <Footer /> or <Footer2 /> or <Footer3 /> or <Footer4 />*/}
       {/*  */}
       <AsideSidebarNavigation />
-    </Aside.Provider>
+    </AsideProvider>
   )
 }
 

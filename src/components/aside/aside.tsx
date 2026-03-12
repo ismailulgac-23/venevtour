@@ -96,8 +96,6 @@ export function Aside({
   )
 }
 
-/* Use for associating arialabelledby with the title*/
-Aside.Title = DialogTitle
 
 export function useDrawer(openDefault = false) {
   const [isOpen, setIsOpen] = useState(openDefault)
